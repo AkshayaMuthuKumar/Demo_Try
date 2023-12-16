@@ -28,9 +28,8 @@ const StockDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editedData, setEditedData] = useState({
-    // ... (your existing properties),
-    originalData: {}, // to store the original values
-    lastEditTimestamp: null, // to store the timestamp of the last edit
+    originalData: {}, 
+    lastEditTimestamp: null, 
   });
   const [editMode, setEditMode] = useState(null);
   const itemsPerPage = 25;
@@ -54,8 +53,8 @@ const StockDetailsPage = () => {
 
   const fetchStockData = async () => {
     try {
-        const response = await axios.get("https://api.5ytechno.com/stock", {
-                    params: { medicinename: searchQuery, fromExpiryDate, toExpiryDate },
+        const response = await axios.get("https://apidemo.5ytechno.com/stock", {
+              params: { medicinename: searchQuery, fromExpiryDate, toExpiryDate },
       });
 
       setMedicineData(response.data);
@@ -80,7 +79,7 @@ const StockDetailsPage = () => {
   useEffect(() => {
     const fetchStockData = async () => {
       try {
-        const response = await axios.get("https://api.5ytechno.com/stock");
+        const response = await axios.get("https://apidemo.5ytechno.com/stock");
         setMedicineData(response.data);
       } catch (error) {
         setError("Error fetching data");
@@ -121,8 +120,9 @@ const StockDetailsPage = () => {
 
   const handleSaveEdit = async (id, updatedData) => {
     try {
+
       const response = await axios.put(
-        `https://api.5ytechno.com/stock/update/${id}`,
+        `https://apidemo.5ytechno.com/stock/update/${id}`,
         updatedData
       );
 
@@ -152,7 +152,7 @@ const StockDetailsPage = () => {
     if (window.confirm("Are you sure you want to delete this item?")) {
       try {
         const response = await axios.delete(
-          `https://api.5ytechno.com/stock/delete/${id}`
+          `https://apidemo.5ytechno.com/stock/delete/${id}`
         );
         console.log("Delete response:", response.data);
 
@@ -173,21 +173,34 @@ const StockDetailsPage = () => {
   };
 
   const handleEdit = (id) => {
-    const editedItem = medicineData.find((item) => item.id === id);
-    setEditMode(id);
-    setEditedData({
-      ...editedItem,
-      originalData: { ...editedItem },
-      lastEditTimestamp: new Date(),
-    });
+    const index = medicineData.findIndex((item) => item.id === id);
+  
+    if (index !== -1) {
+      setEditMode(id);
+  
+      setEditedData((prevData) => {
+        const updatedMedicineData = [...medicineData];
+        const editedItem = { ...updatedMedicineData[index] };
+  
+        return {
+          ...editedItem,
+          originalData: { ...editedItem },
+          lastEditTimestamp: new Date(),
+        };
+      });
+    }
   };
-
+  
+  
   const isRowEdited = (id) => editedRows.some((row) => row.id === id);
 
   const handleCancelEdit = () => {
     setEditMode(null);
     setEditedData({});
   };
+
+
+
 
   const handleChangeEditData = (name, value) => {
     setEditedData((prevData) => ({
@@ -196,7 +209,7 @@ const StockDetailsPage = () => {
       lastEditTimestamp: new Date(),
     }));
   };
-
+  
   const exportToExcel = () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("StockData");
@@ -246,20 +259,20 @@ const StockDetailsPage = () => {
     filteredData.forEach((item) => {
       const formattedDate = item.purchasedate
         ? moment(item.purchasedate).format("YYYY-MM-DD")
-        : "N/A";
+        : "0";
 
       const dataRow = worksheet.addRow({
         purchasedate: formattedDate,
-        medicinename: item.medicinename || "N/A",
-        dosage: item.dosage || "N/A",
-        brandname: item.brandname || "N/A",
-        purchaseprice: item.purchaseprice || "N/A",
+        medicinename: item.medicinename || "0",
+        dosage: item.dosage || "0",
+        brandname: item.brandname || "0",
+        purchaseprice: item.purchaseprice || "0",
 
-        mrp: item.mrp || "N/A",
-        totalqty: item.totalqty || "N/A",
+        mrp: item.mrp || "0",
+        totalqty: item.totalqty || "0",
         expirydate: item.expirydate
           ? moment(item.expirydate).format("YYYY-MM-DD")
-          : "N/A",
+          : "0",
       });
 
       dataRow.alignment = { horizontal: "center" };
@@ -338,17 +351,17 @@ const StockDetailsPage = () => {
       const firstPageBodyData = firstPageData.map((currentData) => [
         currentData.purchasedate
           ? moment(currentData.purchasedate).format("YYYY-MM-DD")
-          : "N/A",
-        currentData.medicinename || "N/A",
-        currentData.dosage || "N/A",
-        currentData.brandname || "N/A",
-        currentData.purchaseprice || "N/A",
+          : "0",
+        currentData.medicinename || "0",
+        currentData.dosage || "0",
+        currentData.brandname || "0",
+        currentData.purchaseprice || "0",
 
-        currentData.mrp || "N/A",
-        currentData.totalqty || "N/A",
+        currentData.mrp || "0",
+        currentData.totalqty || "0",
         currentData.expirydate
           ? moment(currentData.expirydate).format("YYYY-MM-DD")
-          : "N/A",
+          : "0",
       ]);
 
       pdf.autoTable({
@@ -372,7 +385,7 @@ const StockDetailsPage = () => {
           fontSize: 9,
           halign: "center",
         },
-        headerStyles: {
+        headStyles: {
           fillColor: [41, 128, 185],
           textColor: 255,
           lineWidth: 0.3,
@@ -404,17 +417,17 @@ const StockDetailsPage = () => {
         const bodyData = currentPageData.map((currentData) => [
           currentData.purchasedate
             ? moment(currentData.purchasedate).format("YYYY-MM-DD")
-            : "N/A",
-          currentData.medicinename || "N/A",
-          currentData.dosage || "N/A",
-          currentData.brandname || "N/A",
-          currentData.purchaseprice || "N/A",
+            : "0",
+          currentData.medicinename || "0",
+          currentData.dosage || "0",
+          currentData.brandname || "0",
+          currentData.purchaseprice || "0",
 
-          currentData.mrp || "N/A",
-          currentData.totalqty || "N/A",
+          currentData.mrp || "0",
+          currentData.totalqty || "0",
           currentData.expirydate
             ? moment(currentData.expirydate).format("YYYY-MM-DD")
-            : "N/A",
+            : "0",
         ]);
 
         pdf.autoTable({
@@ -575,18 +588,19 @@ const StockDetailsPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredData.map((item, index) => (
+                      {dataOnCurrentPage.map((item, index) => (
                         <tr key={item.id}>
                           <td style={tdStyle}>
                             {item.purchasedate
                               ? moment(item.purchasedate).format("YYYY-MM-DD")
-                              : "N/A"}
+                              : "0"}
                           </td>
 
                           <td style={{ ...tdStyle, textAlign: "left" }}>
-                            {item.medicinename || "N/A"}
+                            {item.medicinename || "0"}
                           </td>
-                          <td style={tdStyle}>{item.dosage || "N/A"}</td>
+                          <td style={tdStyle}>{item.dosage || "0"}</td>
+
                           <td style={tdStyle}>
                             {editMode === item.id ? (
                               <input
@@ -600,7 +614,7 @@ const StockDetailsPage = () => {
                                 }
                               />
                             ) : (
-                              item.brandname || "N/A"
+                              item.brandname || "0"
                             )}
                           </td>
                           <td style={tdStyle}>
@@ -616,7 +630,7 @@ const StockDetailsPage = () => {
                                 }
                               />
                             ) : (
-                              item.purchaseprice || "N/A"
+                              item.purchaseprice || "0"
                             )}
                           </td>
 
@@ -630,7 +644,7 @@ const StockDetailsPage = () => {
                                 }
                               />
                             ) : (
-                              item.mrp || "N/A"
+                              item.mrp || "0"
                             )}
                           </td>
                           <td style={tdStyle}>
@@ -646,27 +660,26 @@ const StockDetailsPage = () => {
                                 }
                               />
                             ) : (
-                              item.totalqty || "N/A"
+                              item.totalqty || "0"
                             )}
                           </td>
                           <td style={tdStyle}>
-                            {editMode === item.id ? (
-                              <input
-                                type="text"
-                                value={editedData.expirydate}
-                                onChange={(e) =>
-                                  handleChangeEditData(
-                                    "expirydate",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            ) : item.expirydate ? (
-                              moment(item.expirydate).format("YYYY-MM-DD")
-                            ) : (
-                              "N/A"
-                            )}
-                          </td>
+  {editMode === item.id ? (
+    <input
+      type="date"
+      value={editedData.expirydate ? editedData.expirydate.slice(0, 10) : ''}
+      onChange={(e) =>
+        handleChangeEditData("expirydate", e.target.value)
+      }
+    />
+  ) : item.expirydate ? (
+    moment(item.expirydate).format("YYYY-MM-DD")
+  ) : (
+    "0"
+  )}
+</td>
+
+
                           <td style={tdStyle}>
                             {isRowEdited(item.id) ? (
                               <span style={{ color: "orange" }}>Edited</span>

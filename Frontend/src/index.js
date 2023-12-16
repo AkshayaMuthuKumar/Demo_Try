@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Chatbot from './components/chatbot';
+import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <Chatbot />
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
 
